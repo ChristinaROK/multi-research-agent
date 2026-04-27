@@ -1,0 +1,54 @@
+# 시크릿 — 절대 커밋 금지
+.env
+.env.local
+.env.*.local
+*.key
+*.pem
+credentials.json
+
+# 런타임 산출물 — workspace 전체 ignore, .gitkeep 만 예외 보존
+/workspace/**
+!/workspace/inputs/
+!/workspace/outputs/
+!/workspace/intermediate/
+!/workspace/logs/
+!/workspace/**/.gitkeep
+*.lock
+*.lock.d
+
+# DB — 환경마다 다름 (스키마는 별도 마이그레이션으로 관리)
+*.db
+*.db-wal
+*.db-shm
+*.sqlite
+*.sqlite-wal
+*.sqlite-shm
+
+# OS / 에디터
+.DS_Store
+.vscode/
+.idea/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+
+# uv
+.uv/
+
+# Node (혹시 도구로 쓰일 경우)
+node_modules/
+
+# Claude Code 캐시
+.claude/sessions/
+.claude/cache/
+
+# 다운로드 임시
+*.tmp
+.*.tmp

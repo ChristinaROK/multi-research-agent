@@ -1,0 +1,73 @@
+[project]
+name = "multi-research-agent"
+version = "0.1.0"
+description = "SK NAV 할인율 팩터를 자율 탐색하는 멀티에이전트 시스템 (Hypothesis / Collector / Analyzer / Verifier + Python Supervisor)"
+readme = "README.md"
+requires-python = ">=3.11,<3.14"
+license = { text = "Proprietary" }
+authors = [{ name = "AIPM" }]
+
+# Phase 0 단계 — 의존성은 Phase 1에서 첫 에이전트 추가될 때 함께 채움.
+# 아래는 Supervisor 골격에 필요한 최소 후보 (실제 설치는 매니저 결정 후).
+dependencies = []
+
+[project.optional-dependencies]
+# Supervisor + 기본 운영
+runtime = [
+    "anthropic>=0.40",        # Claude API SDK (프롬프트 캐싱 기본)
+    "pydantic>=2.6",          # 설정/모델 검증
+    "pydantic-settings>=2.2", # env-driven Settings
+    "python-dotenv>=1.0",     # .env 로딩
+    "requests>=2.31",         # Telegram, fetch
+    "tenacity>=8.2",          # 재시도 (지수 백오프)
+    "alembic>=1.13",          # 핸드오버 §8-3 — DB 마이그레이션 처음부터
+    "sqlalchemy>=2.0",        # alembic 짝
+]
+
+# 데이터 수집 (collector 에이전트 전용) — Phase 2 진입 시 버전 확정
+collect = [
+    "pykrx>=1.0",
+    "OpenDartReader>=0.2",
+    "pdfplumber>=0.11",
+    "playwright>=1.42",
+    "beautifulsoup4>=4.12",
+]
+
+# 분석 (analyzer 에이전트 전용)
+analyze = [
+    "pandas>=2.2",
+    "numpy>=1.26",
+    "statsmodels>=0.14",
+    "scipy>=1.12",
+]
+
+# 개발 도구
+dev = [
+    "pytest>=8.0",
+    "pytest-asyncio>=0.23",
+    "ruff>=0.4",
+    "mypy>=1.9",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/multi_research_agent"]
+
+[tool.ruff]
+line-length = 110  # cycle.py 의 SQL prompt 가 100자 살짝 초과 — 가독성 위해 완화
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP", "N", "RUF"]
+
+[tool.mypy]
+python_version = "3.11"
+strict = true
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "auto"

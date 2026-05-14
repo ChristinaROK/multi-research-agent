@@ -29,6 +29,12 @@ class Settings(BaseSettings):
     model_analyzer: str = Field(default="claude-opus-4-7", alias="MODEL_ANALYZER")
     model_verifier: str = Field(default="claude-sonnet-4-6", alias="MODEL_VERIFIER")
     model_monitor: str = Field(default="claude-haiku-4-5", alias="MODEL_MONITOR")
+    # Lead-Worker layer (orchestrator)
+    model_lead: str = Field(default="claude-opus-4-7", alias="MODEL_LEAD")
+    model_factor_worker: str = Field(default="claude-sonnet-4-6", alias="MODEL_FACTOR_WORKER")
+    # Rubric grader (configs/rubric.yaml 의 grading_policy 가 단일 SoT — 본 env 는 override 만)
+    model_grader_sift: str | None = Field(default=None, alias="MODEL_GRADER_SIFT")
+    model_grader_precision: str | None = Field(default=None, alias="MODEL_GRADER_PRECISION")
 
     # Telegram
     telegram_bot_token: str | None = Field(default=None, alias="TELEGRAM_BOT_TOKEN")

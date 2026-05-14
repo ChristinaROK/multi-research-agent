@@ -14,7 +14,8 @@ dependencies = []
 [project.optional-dependencies]
 # Supervisor + 기본 운영
 runtime = [
-    "anthropic>=0.40",        # Claude API SDK (프롬프트 캐싱 기본)
+    "anthropic>=0.40",        # Claude API SDK — grader/weekly_review 직접 호출용 (프롬프트 캐싱 기본)
+    "claude-agent-sdk>=0.1.81,<0.2",  # Claude Code 헤드리스 호출 (alpha — minor breaking 가능, 엄격 pin)
     "pydantic>=2.6",          # 설정/모델 검증
     "pydantic-settings>=2.2", # env-driven Settings
     "python-dotenv>=1.0",     # .env 로딩
@@ -22,6 +23,7 @@ runtime = [
     "tenacity>=8.2",          # 재시도 (지수 백오프)
     "alembic>=1.13",          # 핸드오버 §8-3 — DB 마이그레이션 처음부터
     "sqlalchemy>=2.0",        # alembic 짝
+    "pyyaml>=6.0",            # configs/rubric.yaml 로더 (grader)
 ]
 
 # 데이터 수집 (collector 에이전트 전용) — Phase 2 진입 시 버전 확정

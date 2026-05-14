@@ -15,6 +15,7 @@ import datetime as dt
 
 from sqlalchemy import (
     JSON,
+    Boolean,
     CheckConstraint,
     DateTime,
     Float,
@@ -54,6 +55,8 @@ DATASET_STATUS = ("collecting", "collected", "failed")
 ANALYSIS_STATUS = ("running", "complete", "irreproducible", "failed")
 VERDICT_DECISION = ("significant", "rejected", "needs_refinement")
 TASK_PRIORITY = ("high", "medium", "low")
+RUBRIC_STAGE = ("sift", "precision")
+RUBRIC_DECISION = ("pass", "retry", "fail")
 
 
 def _enum_check(col: str, values: tuple[str, ...]) -> CheckConstraint:
@@ -90,6 +93,9 @@ class Hypothesis(Base):
     # 텍스트 메모 (이중 산출물 모델, reference/00_writing_style_guide.md)
     brief_path: Mapped[str | None] = mapped_column(Text, nullable=True)
 
+    # Lead orchestrator 라운드 추적 (4-factor 병렬 spawn 의 공통 라벨)
+    round_id: Mapped[str | None] = mapped_column(String(32), nullable=True)
+
     created_at: Mapped[dt.datetime] = mapped_column(DateTime(timezone=True), default=_utcnow)
     updated_at: Mapped[dt.datetime] = mapped_column(
         DateTime(timezone=True), default=_utcnow, onupdate=_utcnow
@@ -108,6 +114,7 @@ class Hypothesis(Base):
         _enum_check("priority", TASK_PRIORITY),
         Index("ix_hypotheses_status_priority", "status", "priority"),
         Index("ix_hypotheses_assigned_at", "assigned_at"),
+        Index("ix_hypotheses_round", "round_id"),
     )
 
 
@@ -207,7 +214,47 @@ class Finding(Base):
     summary: Mapped[str] = mapped_column(Text)
     significance: Mapped[float | None] = mapped_column(Float, nullable=True)  # 효과 크기 지표
     finding_path: Mapped[str | None] = mapped_column(Text, nullable=True)
+    # Outcomes-style rubric grader 통과 여부 — True 만 SK 납품 큐
+    rubric_pass: Mapped[bool] = mapped_column(Boolean, default=False)
     created_at: Mapped[dt.datetime] = mapped_column(DateTime(timezone=True), default=_utcnow)
+
+
+# ─── Rubric Score (Outcomes-style grader 결과) ───────────────
+class RubricScoreRow(Base):
+    """grader 가 채점한 한 finding(또는 verdict)의 5개 항목 결과.
+
+    - decision='pass' 인 행이 있는 finding 만 SK 납품 큐 (findings.rubric_pass=True).
+    - dominant_failure 열은 weekly_review 가 패턴 추출 (어느 항목이 자주 실패하는가).
+    - sift 와 precision 각 1행씩 INSERT (precision 이 최종).
+    """
+
+    __tablename__ = "rubric_scores"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    finding_id: Mapped[str | None] = mapped_column(
+        String(32), ForeignKey("findings.finding_id"), nullable=True
+    )
+    hypothesis_id: Mapped[str] = mapped_column(
+        String(32), ForeignKey("hypotheses.hypothesis_id"), nullable=False
+    )
+    stage: Mapped[str] = mapped_column(String(16))   # sift | precision
+    model: Mapped[str] = mapped_column(String(64))
+    weighted_score: Mapped[float] = mapped_column(Float)
+    decision: Mapped[str] = mapped_column(String(16))   # pass | retry | fail
+    dominant_failure: Mapped[str | None] = mapped_column(String(64), nullable=True)
+    criterion_scores: Mapped[list] = mapped_column(JSON)
+    input_tokens: Mapped[int] = mapped_column(Integer, default=0)
+    output_tokens: Mapped[int] = mapped_column(Integer, default=0)
+    cache_read_tokens: Mapped[int] = mapped_column(Integer, default=0)
+    cache_creation_tokens: Mapped[int] = mapped_column(Integer, default=0)
+    created_at: Mapped[dt.datetime] = mapped_column(DateTime(timezone=True), default=_utcnow)
+
+    __table_args__ = (
+        _enum_check("stage", RUBRIC_STAGE),
+        _enum_check("decision", RUBRIC_DECISION),
+        Index("ix_rubric_scores_hypothesis", "hypothesis_id"),
+        Index("ix_rubric_scores_decision_created", "decision", "created_at"),
+    )
 
 
 # ─── Agent Logs ──────────────────────────────────────────────

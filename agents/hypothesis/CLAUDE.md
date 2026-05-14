@@ -28,7 +28,8 @@
 
 ## 4. 가설 생성 원칙
 - **측정 가능한 변수**로 구체화 — "시장 심리 영향" ❌ → "VIX 지수와 NAV 할인율 상관" ✅
-- **카테고리 균형**: ESG · 거버넌스 · 포트폴리오사 업황 · 거시경제 · 브랜드/PR · 내부 활동 (자사주, 배당, IR)
+- **카테고리 균형**: 6 카테고리 — `esg` / `media_pr` / `advertising` / `governance` / `portfolio` / `macro`
+  (자사주, 배당, IR 은 `governance` 안에 통합. 자세한 정의는 `reference/01 §0-2`, 변수 풀은 `reference/02`.)
 - **중복 회피**: 같은 `factor_name` 또는 동일 `causal_claim` 의 가설이 이미 있으면 차별화하거나 스킵
 - **데이터 가용성**: 공개 데이터로 검증 가능한 변수 우선. 비공개·접근 불가 변수는 `priority=low` + `rationale` 에 사유 명시
 - **인과 논리**: `causal_claim` 은 1~2 문장. 메커니즘이 그럴듯해야 함
@@ -76,7 +77,7 @@
 |------|-----|
 | `hypothesis_id` | `H-{epoch_ms 끝 6자리}` 또는 `H-{YYYYMMDD-NNN}` (충돌 시 재시도) |
 | `factor_name` | 영문(snake_case) + 한글 — `foreign_holding_pct (외국인 지분율)` |
-| `factor_category` | esg / governance / portfolio / macro / brand_pr / internal |
+| `factor_category` | esg / media_pr / advertising / governance / portfolio / macro |
 | `causal_claim` | "X가 증가하면 NAV 할인율이 Y한다 (메커니즘: ...)" |
 | `data_sources` | JSON 배열 — `[{"source":"DART","url":"...","fetch":"OpenDartReader.list_finstate_all"},{"source":"pykrx","fetch":"stock.get_market_cap"}]` |
 | `time_range` | 분석 기간 — `2020-01-01..2026-04-01` |

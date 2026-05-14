@@ -123,13 +123,35 @@ reference_cases:
       baseline 존재(80% 미만 분기와 비교). 단 not_forced 는 8 정도
       (80% 임계값은 사후 결정 가능성 있음 → 부분 감점).
 
+  - case_id: esg_rating_foreign_flow
+    summary: |
+      SK㈜ ESG 등급 (KCGS) 상향 발표일 ± 5거래일에 외국인 순매수가 평소 대비
+      평균 +N% 증가하고, NAV 할인율이 0.5~1.5%p 축소되는 경향이 관측됨
+      (2018~2025, KCGS 발표 이벤트 n=8). 사용자(SK 리서치팀)가 제시한 가설.
+    expected_score_range: [7.0, 8.5]
+    why: |
+      causal_path 명확(ESG 등급 → 패시브 ETF 편입 변화 → 외국인 수급 → 가격) +
+      proxy 측정 가능(KCGS 발표일 + pykrx 외국인 순매수). external_verifiability 9점.
+      not_forced 는 7~8 정도 (이벤트 윈도우 ± 5일은 사전 등록 명시 필요).
+      baseline 은 비-발표 분기와 비교 가능.
+
+  - case_id: buyback_announcement_discount
+    summary: |
+      SK㈜ 자사주 매입 발표일 ± 20거래일에 NAV 할인율이 1~3%p 축소 (event study).
+      대조군: 같은 시기 매입 발표가 없었던 동종 지주사 분기들.
+    expected_score_range: [7.5, 9.0]
+    why: |
+      거버넌스 영역의 고전적 이벤트. proxy_strength 매우 강(DART 공시 = 정확한 발표일).
+      causal_path 명확(자사주 매입 → 발행주식수 감소 → EPS 상승 + 신호 효과).
+      not_forced 8점(윈도우 사전 명시 시), baseline 양호.
+
   - case_id: forced_ad_preference
     summary: |
       광고 선호도 +10%p 상승 → 비용 효율성 개선 → 매출 +X% → 시가총액 영향 추정
     expected_score_range: [2.0, 4.0]
     why: |
       causal_path 6점 이하(중간 단계 없음), not_forced 3점 이하(매출과 시총 연결 임의),
-      baseline 없음. 기존 실패 패턴의 전형.
+      baseline 없음. 기존 실패 패턴의 전형. 사용자(SK)가 명시적으로 회피 요청한 패턴.
 
   - case_id: news_count_times_estimated_cpc
     summary: |
@@ -138,6 +160,15 @@ reference_cases:
     why: |
       proxy_strength 1~2점(기사 수가 평판을 측정하지 않음),
       not_forced 1~2점(계산식 자체가 임의), external_verifiability 6점 정도.
+      사용자(SK)가 명시적으로 회피 요청한 패턴.
+
+  - case_id: youtube_views_market_cap
+    summary: |
+      SK 브랜드 유튜브 채널 조회수와 SK㈜ 시가총액의 단순 회귀 (r = 0.3)
+    expected_score_range: [1.5, 3.5]
+    why: |
+      proxy_strength 매우 약함(조회수는 기업가치를 측정하지 않음).
+      causal_path 누락(조회수 → 시총 사이 메커니즘 없음). 사용자가 회피 요청.
 
 # Grader 단계별 호출 정책 (cost 통제)
 grading_policy:

@@ -1,8 +1,10 @@
-# Lead Orchestrator — 4-factor 라운드 지휘자
+# Lead Orchestrator — 6-factor 라운드 지휘자
 
-> 시니어 리서치 매니저. 매 라운드 시작 시 ESG/미디어/광고/거버넌스 4개 factor worker 에게
+> 시니어 리서치 매니저. 매 라운드 시작 시 6 factor worker (ESG / 언론·PR / 광고 / 거버넌스 / 포트폴리오 / 거시) 에게
 > 어떤 각도로 가설을 파야 할지 directive 를 내리고, 라운드 종료 시 rubric grader 결과와
 > verifier 결과를 종합해 다음 라운드 plan 을 잡습니다.
+>
+> **Y 변수 2 종 모두 본 시스템의 1순위**: 주가 + NAV 할인율. 가설마다 어느 Y 를 보는지 directive 에서 명시.
 
 루트 `CLAUDE.md` 의 협업 규칙, 정지 조건, 비용 한도가 먼저 적용됩니다. 본 문서는 그 위에
 Lead-Worker 패턴의 contract 를 얹습니다.
@@ -69,16 +71,20 @@ T1 가 읽어야 할 자료:
 - `SELECT * FROM rubric_scores WHERE hypothesis_id IN (...)`
 - `SELECT * FROM verdicts WHERE hypothesis_id IN (...)`
 
-## 7. 4 factor 의 의미 (외부 평판 관리 도메인)
+## 7. 6 factor 의 의미
+
+`reference/01_domain_knowledge.md §0-2` 와 `reference/02_factor_playbook.md` 와 정확히 일치합니다.
 
 | factor | 의미 | 대표 X 후보 |
 |--------|------|-----------|
-| `esg` | ESG 평가 등급 변동 + ESG 활동 노출 | KCGS 등급, MSCI 등급, 외국인 수급 변동 |
-| `media` | 뉴스 톤·점유·노출 | 부정 기사 비율, 톤 점수, 점유율 (포트폴리오사 별) |
-| `advertising` | 광고비 + 브랜드 활동 | 추정 광고비, 캠페인 시점, GRP |
-| `governance` | 거버넌스 이벤트 | 이사회 구성 변화, 자사주, 배당 정책, 분할/합병 |
+| `esg` | ESG 등급 + 외국인 수급 반응 | KCGS / MSCI / DJSI 등급, 발표일 전후 외국인 순매수 |
+| `media_pr` | 언론 톤, 노출, 이슈 분류 | 뉴스 긍정/부정 비율, 부정 이슈 임계, 점유율, 컨센서스 분산 |
+| `advertising` | 광고 집행 + 브랜드 활동 | 광고 캠페인 시점, 브랜드 선호도, Interbrand 가치, 내부 광고비 (Phase 2 이후) |
+| `governance` | 지배구조 + 주주환원 + 자사주 + 배당 (기존 internal 흡수) | 사외이사 비율, KCGS 등급, 자사주 매입/소각, 배당성향, 오너 지분 변동 |
+| `portfolio` | 멤버사 업황 + 구성 변화 | SK하이닉스/텔레콤/이노베이션 실적, 비상장 비중, 자회사 신용등급 |
+| `macro` | 거시 환경 + 외국인 패시브 흐름 | KOSPI, 환율, 금리, VKOSPI, 외국인 KOSPI 순매수 |
 
-Y 는 항상 NAV 할인율 또는 SK㈜ 주가 (또는 둘의 합성). reference/01 §1.
+Y 는 **주가 + NAV 할인율 둘 다 1순위** (한 가설이 한 Y 또는 두 Y 모두를 봐도 됨).
 
 ## 8. directive 작성 규칙
 

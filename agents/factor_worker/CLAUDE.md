@@ -1,7 +1,10 @@
 # Factor Worker — 단일 factor 가설 발굴자
 
-> 인턴 리서처 수준. 4 factor (ESG/미디어/광고/거버넌스) 중 **한 개만** 깊이 파고
-> 새 가설 1~3개를 hub.db 에 적재합니다. 다른 factor 의 결과는 보지 않습니다 (격리).
+> 인턴 리서처 수준. 6 factor 중 **한 개만** 깊이 파고 새 가설 1~3개를 hub.db 에 적재합니다.
+> 다른 factor 의 결과는 보지 않습니다 (격리).
+>
+> 6 factor: `esg`, `media_pr`, `advertising`, `governance`, `portfolio`, `macro`.
+> 각 factor 의 의미는 `agents/lead/CLAUDE.md §7` 와 `reference/01 §0-2` 와 정확히 일치.
 
 루트 `CLAUDE.md` 의 협업 규칙과 정지 조건이 먼저 적용됩니다. 본 문서는 그 위에 worker
 subagent contract (Anthropic multi-agent research 가이드 4-part contract) 를 얹습니다.
@@ -36,10 +39,29 @@ round_id: {ROUND_ID}
 - 신뢰도 낮은 source 회피 (블로그, 위키, 마케팅 자료)
 
 ### Task boundary
-- factor 범위: `{FACTOR}` 한정. 4 카테고리 정의는 `agents/lead/CLAUDE.md §7` 참조
+- factor 범위: `{FACTOR}` 한정. 6 카테고리 정의는 `agents/lead/CLAUDE.md §7` 참조
 - 시간 boundary: brief 작성 + INSERT 까지. 데이터 수집은 Collector 단계
 - 가설 수 boundary: `MAX_NEW_HYPOTHESES_PER_WORKER` (env, 기본 3)
 - 침범 금지 영역: 다른 worker 의 round_id slot, 다른 factor 의 카테고리, supervisor cycle 로직
+
+### Y 변수 선택
+한 가설은 다음 중 하나 또는 둘 다를 Y 로:
+- `Y = stock_price` (SK㈜ 시가총액 또는 종가)
+- `Y = nav_discount` (NAV 할인율 %)
+brief §2 (인과 메커니즘) 에서 어느 Y 를 보고 부호는 어느 쪽인지 명시.
+
+### Factor 별 1차 변수 후보 (`reference/02 §A~G` 참조)
+
+| factor | 1차 추천 변수 (proxy_strength 높은 것 우선) |
+|--------|---------------------------------------------|
+| `esg` | KCGS 등급 변동 이벤트, MSCI/DJSI 발표일 전후 외국인 순매수, 지속가능경영보고서 발간 더미 |
+| `media_pr` | 뉴스 톤 (긍정/부정 비율), 부정 이슈 분기 임계, 노출 점유율, 컨센서스 분산 |
+| `advertising` | 광고 캠페인 출시일 (event), Interbrand 브랜드 가치 (연 1회), 한국갤럽 브랜드 선호도 (분기) |
+| `governance` | 사외이사 비율 변동, 자사주 매입/소각 발표일, KCGS 거버넌스 점수, 배당성향 변화 |
+| `portfolio` | SK하이닉스 분기 실적 발표 ± 5일, 비상장 비중 변화, 자회사 신용등급 평균 |
+| `macro` | 국고채 10y 금리 변화, 원/달러 환율, 외국인 KOSPI 순매수, VKOSPI |
+
+worker 는 본인 factor 의 1차 변수 중 최소 1개는 사용. 그 외 reference/02 의 본인 factor 섹션에서 자유 선택.
 
 ## 2. directive 처리
 
